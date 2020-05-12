@@ -1,11 +1,7 @@
 package com.erf;
 
-import com.mysql.cj.log.Log;
-import com.mysql.cj.result.Row;
-import dnl.utils.text.table.TextTable;
 
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Main {
@@ -22,6 +18,9 @@ public class Main {
                 if (query.equals("exit")) {
                     break;
                 }
+                if (query.toLowerCase().contains("use") && query.charAt(query.length() - 1) == ';') {
+                    updateTableName(query);
+                }
                 Connection connection = DriverManager.getConnection(Config.getAddress(), Config.getUsername(), Config.getPassword());
                 executeQuery(connection, query);
                 connection.close();
@@ -32,40 +31,40 @@ public class Main {
 
     }
 
+    private static void updateTableName(String query) {
+        Config.setTableName(query.substring(4, query.length() - 1));
+        System.out.println("Database changed to " + query.substring(4, query.length() - 1));
+    }
+
     private static void executeQuery(Connection connection, String query) throws SQLException {
         Statement statement = connection.createStatement();
-        if (query.toUpperCase().contains("CREATE TABLE")){
+        if (query.toUpperCase().contains("CREATE TABLE")) {
             statement.executeUpdate(query);
             System.out.println("Creating table in database...");
-        }
-        if (query.toUpperCase().contains("DROP TABLE")){
+        } else if (query.toUpperCase().contains("DROP TABLE")) {
             statement.executeUpdate(query);
             System.out.println("Deleting table in database...");
-        }
-        if (query.toUpperCase().contains("INSERT")){
+        } else if (query.toUpperCase().contains("INSERT")) {
             statement.execute(query);
             System.out.println("Inserted records into database...");
-        }
-        if (query.toUpperCase().contains("SELECT")){
+        } else if (query.toUpperCase().contains("SELECT")) {
             ResultSet resultSet = statement.executeQuery(query);
             ResultSetMetaData metaData = resultSet.getMetaData();
             printTable(resultSet, metaData);
-        }
-        if (query.toUpperCase().contains("UPDATE")){
+        } else if (query.toUpperCase().contains("UPDATE")) {
             statement.executeUpdate(query);
             System.out.println("Updating records...");
-        }
-        if (query.toUpperCase().contains("DELETE")){
+        } else if (query.toUpperCase().contains("DELETE")) {
             statement.executeUpdate(query);
             System.out.println("Deleting records...");
-        }if (query.toUpperCase().contains("ALTER")){
+        } else if (query.toUpperCase().contains("ALTER")) {
             statement.executeUpdate(query);
             System.out.println("Changing table...");
-        }if (query.toUpperCase().contains("SHOW TABLES")){
+        } else if (query.toUpperCase().contains("SHOW TABLES")) {
             ResultSet resultSet = statement.executeQuery(query);
             ResultSetMetaData metaData = resultSet.getMetaData();
             printTable(resultSet, metaData);
-        }else {
+        } else {
             statement.execute(query);
         }
     }
@@ -106,7 +105,7 @@ public class Main {
     static String Line(int n) {
         StringBuilder result = new StringBuilder();
         for (int i = 0; i < n; i++) {
-            if (i%28 == 0 || i%28 == 27){
+            if (i % 28 == 0 || i % 28 == 27) {
                 result.append("+");
                 continue;
             }
